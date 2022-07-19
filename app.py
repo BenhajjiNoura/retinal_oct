@@ -1,4 +1,3 @@
-
 import io
 import numpy as np
 import tensorflow as tf
@@ -10,8 +9,9 @@ model = tf.keras.models.load_model('model/retinal-oct.h5')
 def prepare_image(img):
     img = Image.open(io.BytesIO(img))
     img = img.resize((150, 150))
-    img = np.array(img)
     img = np.expand_dims(img, 0)
+    img = np.stack((img,)*3, axis=-1)
+    
     return img
 
 
@@ -34,8 +34,7 @@ def infer_image():
 
     img_bytes = file.read()
     img = prepare_image(img_bytes)
-
-    return jsonify(prediction=predict_result(img))
+    return jsonify(prediction=int(predict_result(img)))
     
 
 @app.route('/', methods=['GET'])
